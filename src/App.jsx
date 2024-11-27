@@ -46,6 +46,12 @@ export const App = () => {
     filtrChar,
   );
 
+  function reset() {
+    setFiltrCategory('');
+    setFiltrChar('');
+    setFiltrName('');
+  }
+
   return (
     <div className="section">
       <div className="container">
@@ -56,12 +62,23 @@ export const App = () => {
             <p className="panel-heading">Filters</p>
 
             <p className="panel-tabs has-text-weight-bold">
-              <a data-cy="FilterAllUsers" href="#/">
+              <a
+                data-cy="FilterAllUsers"
+                href="#/"
+                className={filtrName === '' ? 'is-active' : null}
+                onClick={() => setFiltrName('')}
+              >
                 All
               </a>
 
               {usersFromServer.map(person => (
-                <a key={person.id} data-cy="FilterUser" href="#/">
+                <a
+                  key={person.id}
+                  data-cy="FilterUser"
+                  href="#/"
+                  className={filtrName === person.name ? 'is-active' : null}
+                  onClick={() => setFiltrName(person.name)}
+                >
                   {person.name}
                 </a>
               ))}
@@ -74,7 +91,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value=""
+                  value={filtrChar}
+                  onInput={val => setFiltrChar(val.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -108,7 +126,11 @@ export const App = () => {
                   data-cy="Category"
                   className={`button mr-2 my-1 ${filtrCategory.includes(cat.title) ? 'is-info' : ''}`}
                   href="#/"
-                  onClick={() => setFiltrCategory(filtrCategory + cat.title)}
+                  onClick={() =>
+                    !filtrCategory.includes(cat.title)
+                      ? setFiltrCategory(filtrCategory + cat.title)
+                      : setFiltrCategory(filtrCategory.replace(cat.title, ''))
+                  }
                 >
                   {cat.title}
                 </a>
@@ -120,6 +142,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={() => reset()}
               >
                 Reset all filters
               </a>
@@ -128,86 +151,87 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {/* <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p> */}
+          {visibleProducts.length === 0 ? (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+          ) : (
+            <table
+              data-cy="ProductTable"
+              className="table is-striped is-narrow is-fullwidth"
+            >
+              <thead>
+                <tr>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      ID
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
 
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      Product
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort-down" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      Category
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort-up" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {visibleProducts.map(product => (
-                <tr key={product.id} data-cy="Product">
-                  <td className="has-text-weight-bold" data-cy="ProductId">
-                    {product.id}
-                  </td>
-
-                  <td data-cy="ProductName">{product.name}</td>
-                  <td data-cy="ProductCategory">{`${product.category.icon} - ${product.category.title}`}</td>
-
-                  <td
-                    data-cy="ProductUser"
-                    className={
-                      product.user.sex === 'm'
-                        ? 'has-text-link'
-                        : 'has-text-danger'
-                    }
-                  >
-                    {product.user.name}
-                  </td>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      User
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {visibleProducts.map(product => (
+                  <tr key={product.id} data-cy="Product">
+                    <td className="has-text-weight-bold" data-cy="ProductId">
+                      {product.id}
+                    </td>
+
+                    <td data-cy="ProductName">{product.name}</td>
+                    <td data-cy="ProductCategory">{`${product.category.icon} - ${product.category.title}`}</td>
+
+                    <td
+                      data-cy="ProductUser"
+                      className={
+                        product.user.sex === 'm'
+                          ? 'has-text-link'
+                          : 'has-text-danger'
+                      }
+                    >
+                      {product.user.name}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
