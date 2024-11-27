@@ -24,7 +24,7 @@ function setSortFilt(prod, name = '', categ = '', char = '') {
   }
 
   if (categ) {
-    retProducrs = retProducrs.filter(pr => pr.category.title === categ);
+    retProducrs = retProducrs.filter(pr => categ.includes(pr.category.title));
   }
 
   if (char) {
@@ -106,9 +106,9 @@ export const App = () => {
                 <a
                   key={cat.id}
                   data-cy="Category"
-                  className="button mr-2 my-1"
+                  className={`button mr-2 my-1 ${filtrCategory.includes(cat.title) ? 'is-info' : ''}`}
                   href="#/"
-                  onClick={() => setFiltrCategory(cat.title)}
+                  onClick={() => setFiltrCategory(filtrCategory + cat.title)}
                 >
                   {cat.title}
                 </a>
